@@ -1,21 +1,43 @@
-// 1. Importar Express
+// --- Importaciones ---
 const express = require('express');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-// 2. Crear una instancia de la aplicación
+const juegosRouter = require('./routes/juegos.js'); // Ruta de juegos
+const resenasRouter = require('./routes/resenas.js'); // <-- 1. IMPORTAMOS LAS NUEVAS RUTAS
+
+// --- Inicialización ---
 const app = express();
-
-// 3. Definir un "puerto" para que el servidor escuche
-// Usamos 3001 para el backend (React suele usar el 3000)
 const PORT = 3001;
 
-// 4. Crear una ruta de prueba
-// Cuando alguien visite la raíz ('/') de tu servidor, le enviaremos una respuesta.
+// --- Middlewares ---
+app.use(express.json()); // Para que Express entienda JSON
+
+// --- Conexión a la Base de Datos ---
+mongoose.connect(process.env.DB_URI)
+  .then(() => {
+    console.log('¡Conectado exitosamente a MongoDB Atlas!');
+  })
+  .catch((error) => {
+    console.error('Error al conectar a MongoDB:', error);
+  });
+
+// --- Rutas ---
 app.get('/', (req, res) => {
   res.send('¡Mi servidor GameTracker funciona!');
 });
 
-// 5. Iniciar el servidor
-// Le decimos a la app que "escuche" peticiones en el puerto que definimos.
+// Conectamos las rutas de JUEGOS
+app.use('/api/juegos', juegosRouter);
+
+// <-- 2. CONECTAMOS LAS NUEVAS RUTAS
+// Le decimos a Express:
+// "Cualquier petición que empiece con /api/reseñas,
+// mándasela al archivo 'resenasRouter' que importamos"
+app.use('/api/reseñas', resenasRouter);
+
+
+// --- Iniciar Servidor ---
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
