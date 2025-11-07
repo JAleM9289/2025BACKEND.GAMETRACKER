@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Resena = require('../models/Resena.js'); // Importamos el modelo de Reseña
-const Juego = require('../models/Juego.js');   // Importamos el modelo de Juego (lo necesitaremos)
+const Juego = require('../models/Juego.js');   // Importamos el modelo de Juego
 
 /*
  * ===============================================
  * RUTA 1: CREAR una nueva reseña (POST)
  * ===============================================
- * @route   POST /api/reseñas
+ * @route   POST /api/resenas
  * @desc    Escribir una nueva reseña para un juego
  */
 router.post('/', async (req, res) => {
@@ -33,5 +33,79 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Exportamos el router para que index.js pueda usarlo
+/*
+ * ===============================================
+ * RUTA 2: LEER todas las reseñas (GET)
+ * ===============================================
+ * @route   GET /api/resenas
+ * @desc    Obtener todas tus reseñas
+ */
+router.get('/', async (req, res) => {
+  try {
+    const resenas = await Resena.find();
+    res.json(resenas);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/*
+ * ===============================================
+ * RUTA 3: LEER reseñas de un juego específico (GET)
+ * ===============================================
+ * @route   GET /api/resenas/juego/:juegoId
+ * @desc    Reseñas de un juego específico
+ */
+router.get('/juego/:juegoId', async (req, res) => {
+  try {
+    const resenas = await Resena.find({ juegoId: req.params.juegoId });
+    res.json(resenas);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/*
+ * ===============================================
+ * RUTA 4: ACTUALIZAR una reseña (PUT)
+ * ===============================================
+ * @route   PUT /api/resenas/:id
+ * @desc    Actualizar reseña existente
+ */
+router.put('/:id', async (req, res) => {
+  try {
+    const resenaActualizada = await Resena.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!resenaActualizada) {
+      return res.status(404).json({ message: 'Reseña no encontrada' });
+    }
+    res.json(resenaActualizada);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+/*
+ * ===============================================
+ * RUTA 5: ELIMINAR una reseña (DELETE)
+ * ===============================================
+ * @route   DELETE /api/resenas/:id
+ * @desc    Eliminar reseña
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const resenaEliminada = await Resena.findByIdAndDelete(req.params.id);
+    if (!resenaEliminada) {
+      return res.status(404).json({ message: 'Reseña no encontrada' });
+    }
+    res.json({ message: 'Reseña eliminada exitosamente' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
 module.exports = router;

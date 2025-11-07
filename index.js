@@ -34,7 +34,7 @@ app.use('/api/juegos', juegosRouter);
 // Le decimos a Express:
 // "Cualquier petición que empiece con /api/reseñas,
 // mándasela al archivo 'resenasRouter' que importamos"
-app.use('/api/reseñas', resenasRouter);
+app.use('/api/resenas', resenasRouter);
 
 
 // --- Iniciar Servidor ---
