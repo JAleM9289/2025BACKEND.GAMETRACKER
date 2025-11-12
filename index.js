@@ -1,47 +1,54 @@
+// index.js
+
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors'); 
+const cors = require('cors'); // Para habilitar la comunicación con el frontend
 
-// --- 1. Configuraciones
-dotenv.config(); 
+// --- Configuración de Variables de Entorno ---
+// Asegúrate de que este archivo carga las variables del .env
+// Si usas nodemon con -r dotenv/config, puedes omitir esta línea:
+// require('dotenv').config(); 
+
+const DB_URI = process.env.DB_URI; 
+const PORT = process.env.PORT || 3000; // Define un puerto para tu API
 
 const app = express();
-const PORT = process.env.PORT || 3001; 
 
-// --- 2. Importaciones de Rutas (¡CORREGIDO con los nuevos nombres de archivo!)
-const juegosRouter = require('./routes/juegos'); 
-const resenasRouter = require('./routes/resenas');
+// --- 1. SOLUCIÓN CORS ---
+const corsOptions = {
+    // Es crucial que 'origin' sea exactamente la dirección de tu frontend (localhost:5173)
+    origin: 'http://localhost:5173', 
+    optionsSuccessStatus: 200 
+};
+app.use(cors(corsOptions));
+// Si solo quieres habilitar CORS sin restricciones (MENOS SEGURO):
+// app.use(cors());
 
-// --- 3. Middlewares
-// ¡CAMBIO CLAVE AQUÍ! Se cambió el origen a 5174 para que coincida con donde corre el Frontend.
-app.use(cors({
-    origin: 'http://localhost:5174', 
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
-}));
-app.use(express.json());
+// --- 2. SOLUCIÓN CONEXIÓN MONGODB ---
 
-// --- 4. Definición de Rutas (Endpoints)
-app.use('/api/juegos', juegosRouter);
-app.use('/api/resenas', resenasRouter);
+// Verifica que la URI se haya cargado correctamente
+if (!DB_URI) {
+    console.error("❌ Error: La variable de entorno DB_URI no está definida. Revisa tu archivo .env");
+    process.exit(1); 
+}
 
-// Ruta Raíz
-app.get('/', (req, res) => {
-    res.send('Gametracker está funcionando con éxito');
-});
-
-// --- 5. Conexión a la Base de Datos
-mongoose.connect(process.env.DB_URI)
+mongoose.connect(DB_URI) 
     .then(() => {
-        console.log('Conectado exitosamente a MongoDB Atlas'); 
-
+        console.log('✅ Conexión exitosa a MongoDB');
+        
+        // Solo inicia el servidor si la conexión a la DB fue exitosa
         app.listen(PORT, () => {
-            console.log(`Servidor corriendo en http://localhost:${PORT}`);
+            console.log(`🚀 Servidor Express escuchando en el puerto ${PORT}`);
         });
     })
-    .catch(error => {
-        console.error("Error al conectar a MongoDB:", error.message);
+    .catch(err => {
+        console.error('❌ Error de conexión a MongoDB:', err.message);
+        // Si la conexión falla, el servidor no arranca
         process.exit(1); 
     });
 
-module.exports = app;
+// --- Middleware y Rutas ---
+app.use(express.json()); // Permite a Express leer JSON en el body de las peticiones
+
+// Define tus rutas aquí
+// app.use('/api/games', require('./routes/games'));
