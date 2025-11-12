@@ -10,19 +10,18 @@ const app = express();
 const PORT = process.env.PORT || 3001; 
 
 // --- 2. Importaciones de Rutas (¡CORREGIDO con los nuevos nombres de archivo!)
-// Ahora buscamos 'juegos' y 'resenas', que coinciden con los nuevos nombres
 const juegosRouter = require('./routes/juegos'); 
 const resenasRouter = require('./routes/resenas');
 
 // --- 3. Middlewares
+// ¡CAMBIO CLAVE AQUÍ! Se cambió el origen a 5174 para que coincida con donde corre el Frontend.
 app.use(cors({
-    origin: 'http://localhost:5173', 
+    origin: 'http://localhost:5174', 
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 app.use(express.json());
 
 // --- 4. Definición de Rutas (Endpoints)
-// La URL base sigue siendo /api/juegos y /api/resenas
 app.use('/api/juegos', juegosRouter);
 app.use('/api/resenas', resenasRouter);
 
@@ -34,7 +33,7 @@ app.get('/', (req, res) => {
 // --- 5. Conexión a la Base de Datos
 mongoose.connect(process.env.DB_URI)
     .then(() => {
-        console.log('Conectado exitosamente a MongoDB Atlas'); // ¡Ya habíamos llegado aquí!
+        console.log('Conectado exitosamente a MongoDB Atlas'); 
 
         app.listen(PORT, () => {
             console.log(`Servidor corriendo en http://localhost:${PORT}`);
