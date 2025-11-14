@@ -7,6 +7,8 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
+// CLAVE: URL de tu Frontend desplegado en GitHub Pages.
+// Asegúrate de que empieza con https://
 const FRONTEND_URL = 'https://jalem9289.github.io/2025FRONTED.GAMETRACKER/'; 
 
 const corsOptions = {
@@ -16,8 +18,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Middleware para leer JSON
 app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); // Middleware extra, recomendado para formularios
 
+// Definición de rutas
 app.use('/api/games', require('./routes/juegos')); 
 
 if (!DB_URI) {
@@ -30,7 +35,8 @@ mongoose.connect(DB_URI)
         console.log('✅ Conexión exitosa a MongoDB');
         
         app.listen(PORT, () => {
-            console.log(`🚀 Servidor Express escuchando en el puerto ${PORT}`);
+            // NOTE: Render usa su propio puerto, pero el mensaje local es útil.
+            console.log(`🚀 Servidor Express escuchando en el puerto ${PORT}`); 
         });
     })
     .catch(err => {
