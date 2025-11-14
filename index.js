@@ -7,41 +7,37 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-// --- Configuración Robusta de CORS ---
-// URL de la subcarpeta del repo (la correcta)
-const REPO_URL = 'https://jalem9289.github.io/2025FRONTED.GAMETRACKER'; 
-// URL raíz (la que el navegador reporta en el error)
-const ROOT_URL = 'https://jalem9289.github.io'; 
-
+// --- Configuración Final y Robusta de CORS ---
+// Las URLs que GitHub Pages podría enviar como origen
 const allowedOrigins = [
-    // Orígenes que aceptamos para que no haya bloqueo
-    ROOT_URL, 
-    REPO_URL, 
-    `${REPO_URL}/`, 
-    `${ROOT_URL}/`
+    'https://jalem9289.github.io', 
+    'https://jalem9289.github.io/',
+    'https://jalem9289.github.io/2025FRONTED.GAMETRACKER', 
+    'https://jalem9289.github.io/2025FRONTED.GAMETRACKER/'
 ];
 
 const corsOptions = {
     origin: function (origin, callback) {
-        // Permitir si la peticion es local o si el origen esta en la lista de permitidos
+        // Permitir si la peticion es local o si el origen esta en la lista
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS: ' + origin));
+            // Este error nunca debería ocurrir con la lista de arriba
+            callback(new Error('CORS BLOCK: Origin no permitido: ' + origin));
         }
     },
+    // Es CRUCIAL que esto esté en true si usas cookies o sesiones (o si tu Frontend lo espera)
     credentials: true,
     optionsSuccessStatus: 200 
 };
 app.use(cors(corsOptions));
 
-// --- Middleware y Rutas ---
+// --- Middleware y Conexión ---
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 
 app.use('/api/games', require('./routes/juegos')); 
 
-// --- Conexión a MongoDB ---
 if (!DB_URI) {
     console.error("❌ Error: La variable de entorno DB_URI no está definida.");
     process.exit(1); 
@@ -50,7 +46,6 @@ if (!DB_URI) {
 mongoose.connect(DB_URI) 
     .then(() => {
         console.log('✅ Conexión exitosa a MongoDB');
-        
         app.listen(PORT, () => {
             console.log(`🚀 Servidor Express escuchando en el puerto ${PORT}`); 
         });
