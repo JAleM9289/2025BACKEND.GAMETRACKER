@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-const FRONTEND_URL = 'https://JAleM9289.github.io/2025FRONTED.GAMETRACKER/'; 
+const FRONTEND_URL = 'https://jalem9289.github.io/2025FRONTED.GAMETRACKER/'; 
 
 const corsOptions = {
     origin: FRONTEND_URL, 
